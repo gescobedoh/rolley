@@ -1,0 +1,976 @@
+#include "stdafx.h"
+#include <iostream>
+#include <conio.h>
+#include <windows.h>
+#include <iomanip>
+
+#define N 11
+#define UP 72
+#define LEFT 75
+#define RIGHT 77
+#define DOWN 80
+
+using namespace System;
+using namespace std;
+
+void Centrar(int x, int y)
+{
+	int a, b;
+	a = 33;
+	b = 9;
+	Console::SetCursorPosition(a + x, b + y);
+}
+
+void victoria()
+{
+	int color, n = 1;
+	Random r;
+
+	Console::Clear();
+	while (n < 25)
+	{
+		Sleep(80);
+		color = r.Next(1, 8);
+		switch (color)
+		{
+		case 1:
+			Console::ForegroundColor = ConsoleColor::Blue;
+			break;
+		case 2:
+			Console::ForegroundColor = ConsoleColor::Cyan;
+			break;
+		case 3:
+			Console::ForegroundColor = ConsoleColor::Yellow;
+			break;
+		case 4:
+			Console::ForegroundColor = ConsoleColor::Red;
+			break;
+		case 5:
+			Console::ForegroundColor = ConsoleColor::Green;
+			break;
+		case 6:
+			Console::ForegroundColor = ConsoleColor::Magenta;
+			break;
+		case 7:
+			Console::ForegroundColor = ConsoleColor::DarkCyan;
+			break;
+		}
+		Centrar(1, 0);
+		cout << "GANASTE!";
+		n++;
+	}
+	_getch();
+}
+
+void derrota()
+{
+	Console::Clear();
+	Centrar(1, 0);
+	Console::ForegroundColor = ConsoleColor::Gray;
+	cout << "GAME OVER";
+	_getch();
+}
+
+void MostrarMapa(int **mapa, int &nivel, int &nrobloques, int &color)
+{
+	Console::SetCursorPosition(34, 2);
+	Console::ForegroundColor = ConsoleColor::White;
+	cout << "- NIVEL " << nivel << " -";
+
+	for (int i = 0; i < N; i++)
+	for (int j = 0; j < N; j++)
+	{
+		if (mapa[i][j] == 1)
+		{
+			Centrar(j, i);
+			Console::ForegroundColor = ConsoleColor::White;
+			cout << char(219);
+			nrobloques++;
+		}
+		else
+		{
+			if (mapa[i][j] == 2)
+			{
+				Centrar(j, i);
+				Console::ForegroundColor = ConsoleColor(color);
+				cout << char(2);
+			}
+
+			else
+			{
+				Centrar(j, i);
+				cout << " ";
+			}
+		}
+	}
+}
+
+void MostrarVidas(int &vidas, bool &gameover)
+{
+	Centrar(-9, -3);
+	Console::ForegroundColor = ConsoleColor::Gray;
+	cout << "VIDAS: ";
+	for (int i = 1; i <= vidas; i++)
+	{
+		Console::ForegroundColor = ConsoleColor::DarkRed;
+		cout << char(3);
+	}
+
+	if (vidas <= 0)
+		gameover = true;
+}
+
+void MostrarPasos(int &vidas, bool &start, int &pasos)
+{
+	Centrar(6, -3);
+	Console::ForegroundColor = ConsoleColor::Gray;
+	cout << "MOV. RESTANTES: " << pasos << "  ";
+	if (pasos < 0)
+	{
+		vidas--;
+		start = true;
+	}
+}
+
+void mapa1(int **mapa, int *inicio, int &pasos)
+{
+	int aux[N][N] = { { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+	{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+	{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+	{ 0, 0, 0, 2, 1, 1, 0, 0, 0, 0, 0 },
+	{ 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0 },
+	{ 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0 },
+	{ 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0 },
+	{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+	{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+	{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+	{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 } };
+
+	for (int i = 0; i < N; i++)
+	for (int j = 0; j < N; j++)
+		mapa[i][j] = aux[i][j];
+
+	int partida[2] = { 3, 3 };
+
+	for (int i = 0; i < 2; i++)
+		inicio[i] = partida[i];
+
+	pasos = 15;
+}
+
+void mapa2(int **mapa, int *inicio, int &pasos)
+{
+	int aux[N][N] = { { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+	{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+	{ 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0 },
+	{ 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0 },
+	{ 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0 },
+	{ 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0 },
+	{ 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0 },
+	{ 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0 },
+	{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+	{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+	{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 } };
+
+	for (int i = 0; i < N; i++)
+	for (int j = 0; j < N; j++)
+		mapa[i][j] = aux[i][j];
+
+	int partida[2] = { 7, 3 };
+
+	for (int i = 0; i < 2; i++)
+		inicio[i] = partida[i];
+
+	pasos = 23;
+}
+
+void mapa3(int **mapa, int *inicio, int &pasos)
+{
+	int aux[N][N] = { { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+	{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+	{ 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0 },
+	{ 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0 },
+	{ 0, 2, 0, 0, 1, 0, 0, 1, 1, 0, 0 },
+	{ 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0 },
+	{ 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0 },
+	{ 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0 },
+	{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+	{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+	{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 } };
+
+	for (int i = 0; i < N; i++)
+	for (int j = 0; j < N; j++)
+		mapa[i][j] = aux[i][j];
+
+	int partida[2] = { 4, 1 };
+
+	for (int i = 0; i < 2; i++)
+		inicio[i] = partida[i];
+
+	pasos = 29;
+}
+
+void mapa4(int **mapa, int *inicio, int &pasos)
+{
+	int aux[N][N] = { { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+	{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+	{ 0, 0, 0, 0, 1, 1, 1, 0, 1, 2, 0 },
+	{ 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 0 },
+	{ 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0 },
+	{ 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0 },
+	{ 0, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0 },
+	{ 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0 },
+	{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+	{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+	{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 } };
+
+	for (int i = 0; i < N; i++)
+	for (int j = 0; j < N; j++)
+		mapa[i][j] = aux[i][j];
+
+	int partida[2] = { 2, 9 };
+
+	for (int i = 0; i < 2; i++)
+		inicio[i] = partida[i];
+
+	pasos = 36;
+}
+
+void mapa5(int **mapa, int *inicio, int *enemy, bool &mostrarmalo, int &rango, int &pasos,
+	int &tipomalo)
+{
+	int aux[N][N] = { { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+	{ 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0 },
+	{ 0, 1, 1, 1, 0, 0, 1, 1, 0, 0, 0 },
+	{ 0, 1, 0, 1, 0, 1, 1, 1, 1, 0, 0 },
+	{ 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 0 },
+	{ 0, 1, 1, 1, 1, 2, 1, 1, 1, 0, 0 },
+	{ 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0 },
+	{ 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0 },
+	{ 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0 },
+	{ 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0 },
+	{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 } };
+
+	for (int i = 0; i < N; i++)
+	for (int j = 0; j < N; j++)
+		mapa[i][j] = aux[i][j];
+
+	int partida[2] = { 5, 5 };
+	int enemigo[2] = { 7, 0 };
+
+	for (int i = 0; i < 2; i++)
+	{
+		inicio[i] = partida[i];
+		enemy[i] = enemigo[i];
+	}
+
+	mostrarmalo = true;
+	tipomalo = 1;
+	rango = 8;
+	pasos = 51;
+}
+
+void mapa6(int **mapa, int *inicio, int *enemy, bool &mostrarmalo, int &rango, int &pasos,
+	int &tipomalo)
+{
+	int aux[N][N] = { { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+	{ 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0 },
+	{ 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0 },
+	{ 0, 1, 0, 0, 1, 1, 0, 0, 0, 1, 0 },
+	{ 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0 },
+	{ 0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0 },
+	{ 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0 },
+	{ 0, 0, 1, 1, 0, 1, 0, 1, 0, 2, 0 },
+	{ 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0 },
+	{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+	{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 } };
+
+	for (int i = 0; i < N; i++)
+	for (int j = 0; j < N; j++)
+		mapa[i][j] = aux[i][j];
+
+	int partida[2] = { 7, 9 };
+	int enemigo[2] = { 2, 0 };
+
+	for (int i = 0; i < 2; i++)
+	{
+		inicio[i] = partida[i];
+		enemy[i] = enemigo[i];
+	}
+
+	mostrarmalo = true;
+	tipomalo = 1;
+	rango = 9;
+	pasos = 46;
+}
+
+void mapa7(int **mapa, int *inicio, int *enemy, bool &mostrarmalo, int &rango, int &pasos,
+	int &tipomalo)
+{
+	int aux[N][N] = { { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+	{ 0, 0, 1, 1, 0, 1, 1, 1, 1, 1, 0 },
+	{ 0, 1, 1, 1, 0, 1, 0, 0, 2, 1, 0 },
+	{ 0, 1, 0, 1, 0, 1, 1, 1, 0, 0, 0 },
+	{ 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0 },
+	{ 0, 0, 1, 0, 0, 1, 0, 1, 0, 1, 0 },
+	{ 0, 0, 1, 1, 1, 1, 0, 1, 0, 1, 0 },
+	{ 0, 0, 0, 1, 0, 1, 1, 1, 0, 1, 0 },
+	{ 0, 0, 1, 1, 0, 1, 0, 0, 1, 1, 0 },
+	{ 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0 },
+	{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 } };
+
+	for (int i = 0; i < N; i++)
+	for (int j = 0; j < N; j++)
+		mapa[i][j] = aux[i][j];
+
+	int partida[2] = { 2, 8 };
+	int enemigo[2] = { 0, 5 };
+
+	for (int i = 0; i < 2; i++)
+	{
+		inicio[i] = partida[i];
+		enemy[i] = enemigo[i];
+	}
+
+	mostrarmalo = true;
+	tipomalo = 2;
+	rango = 9;
+	pasos = 72;
+}
+
+void mapa8(int **mapa, int *inicio, int *enemy, bool &mostrarmalo, int &rango, int &pasos,
+	int &tipomalo)
+{
+	int aux[N][N] = { { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+	{ 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0 },
+	{ 0, 1, 1, 1, 0, 1, 0, 0, 0, 1, 0 },
+	{ 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0 },
+	{ 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0 },
+	{ 0, 1, 1, 0, 2, 1, 0, 1, 0, 1, 0 },
+	{ 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0 },
+	{ 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0 },
+	{ 0, 1, 0, 1, 1, 1, 0, 0, 1, 1, 0 },
+	{ 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0 },
+	{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 } };
+
+	for (int i = 0; i < N; i++)
+	for (int j = 0; j < N; j++)
+		mapa[i][j] = aux[i][j];
+
+	int partida[2] = { 5, 4 };
+	int enemigo[2] = { 0, 5 };
+
+	for (int i = 0; i < 2; i++)
+	{
+		inicio[i] = partida[i];
+		enemy[i] = enemigo[i];
+	}
+
+	mostrarmalo = true;
+	tipomalo = 3;
+	rango = 7;
+	pasos = 91;
+}
+
+void Pintar(int jx, int jy, int **mapa, int &color)
+{
+	Centrar(jx, jy);
+	if (mapa[jy][jx] == 3)
+	{
+		Console::ForegroundColor = ConsoleColor::White;
+		mapa[jy][jx] = 1;
+	}
+	else
+	{
+		Console::ForegroundColor = ConsoleColor(color);
+		mapa[jy][jx] = 3;
+	}
+	cout << char(219);
+}
+
+void ContarColores(int jx, int jy, int **mapa, int &nrobloques, int %colorbloques,
+	bool &start, int &nivel)
+{
+	if (mapa[jy][jx] == 3)
+		colorbloques--;
+	else
+	{
+		if (mapa[jy][jx] == 1)
+			colorbloques++;
+	}
+
+	if (colorbloques == nrobloques)
+	{
+		start = true;
+		nivel++;
+	}
+}
+
+void malote(bool &mostrarmalo, int **mapa, int *posenemy, int &d, int &rango, int *pos,
+	bool &start, int &vidas, int &color, int &tipomalo, int &d2, int &sentido, int &retraso)
+{
+	if (mostrarmalo == true)
+	{
+		int ex, ey;
+
+		switch (tipomalo)
+		{
+		case 1:
+			//enemigo horizontal
+			ex = posenemy[1];
+			ey = posenemy[0];
+
+			Console::ForegroundColor = ConsoleColor::Yellow;
+			Centrar(ex - 1, ey);
+			cout << char(204);
+
+			if (ex + d == pos[1] && ey == pos[0])
+			{
+				vidas--;
+				start = true;
+			}
+
+			if (d <= rango)
+			{
+				Console::ForegroundColor = ConsoleColor::Yellow;
+				Centrar(ex + d, ey);
+				cout << char(16);
+				Sleep(retraso);
+				Centrar(ex + d, ey);
+				if (mapa[ey][ex + d] == 1)
+				{
+					Console::ForegroundColor = ConsoleColor::White;
+					cout << char(219);
+				}
+
+				else
+				{
+					if (mapa[ey][ex + d] == 3)
+					{
+						Console::ForegroundColor = ConsoleColor(color);
+						cout << char(219);
+					}
+					else
+					{
+						cout << " ";
+					}
+				}
+				d++;
+			}
+			else {
+				d = 0;
+			} break;
+
+		case 2:
+			//enemigo vertical
+			ex = posenemy[1];
+			ey = posenemy[0];
+
+			Console::ForegroundColor = ConsoleColor::Yellow;
+			Centrar(ex, ey - 1);
+			cout << char(203);
+
+			if (ex == pos[1] && ey + d == pos[0])
+			{
+				vidas--;
+				start = true;
+			}
+
+			if (d <= rango)
+			{
+				Console::ForegroundColor = ConsoleColor::Yellow;
+				Centrar(ex, ey + d);
+				cout << char(31);
+				Sleep(retraso);
+				Centrar(ex, ey + d);
+				if (mapa[ey + d][ex] == 1)
+				{
+					Console::ForegroundColor = ConsoleColor::White;
+					cout << char(219);
+				}
+
+				else
+				{
+					if (mapa[ey + d][ex] == 3)
+					{
+						Console::ForegroundColor = ConsoleColor(color);
+						cout << char(219);
+					}
+					else
+					{
+						cout << " ";
+					}
+				}
+				d++;
+			}
+			else {
+				d = 0;
+			} break;
+
+		case 3:
+			//caida vertical
+			ex = posenemy[1];
+			ey = posenemy[0];
+
+			Console::ForegroundColor = ConsoleColor::Yellow;
+			Centrar(ex, ey - 1);
+			cout << char(203);
+
+			if (ex == pos[1] && ey + d == pos[0])
+			{
+				vidas--;
+				start = true;
+			}
+
+			if (d <= rango)
+			{
+				Console::ForegroundColor = ConsoleColor::Yellow;
+				Centrar(ex, ey + d);
+				cout << char(31);
+				Sleep(retraso);
+				Centrar(ex, ey + d);
+				if (mapa[ey + d][ex] == 1)
+				{
+					Console::ForegroundColor = ConsoleColor::White;
+					cout << char(219);
+				}
+
+				else
+				{
+					if (mapa[ey + d][ex] == 3)
+					{
+						Console::ForegroundColor = ConsoleColor(color);
+						cout << char(219);
+					}
+					else
+					{
+						cout << " ";
+					}
+				}
+				d++;
+			}
+			else {
+				switch (sentido)
+				{
+				case 0:
+					//dobla hacia derecha
+					if (ex + d2 == pos[1] && ey + d == pos[0])
+					{
+						vidas--;
+						start = true;
+					}
+
+					if (d2 <= 4)
+					{
+						Console::ForegroundColor = ConsoleColor::Yellow;
+						Centrar(ex + d2, ey + d);
+						cout << char(16);
+						Sleep(retraso);
+						Centrar(ex + d2, ey + d);
+						if (mapa[ey + d][ex + d2] == 1)
+						{
+							Console::ForegroundColor = ConsoleColor::White;
+							cout << char(219);
+						}
+
+						else
+						{
+							if (mapa[ey + d][ex + d2] == 3)
+							{
+								Console::ForegroundColor = ConsoleColor(color);
+								cout << char(219);
+							}
+							else
+							{
+								cout << " ";
+							}
+						}
+						d2++;
+					}
+					else
+					{
+						d = 0;
+						d2 = 0;
+						sentido = 1;
+					} break;
+
+				case 1:
+					//dobla a la izquierda
+					if (ex - d2 == pos[1] && ey + d == pos[0])
+					{
+						vidas--;
+						start = true;
+					}
+
+					if (d2 <= 4)
+					{
+						Console::ForegroundColor = ConsoleColor::Yellow;
+						Centrar(ex - d2, ey + d);
+						cout << char(17);
+						Sleep(retraso);
+						Centrar(ex - d2, ey + d);
+						if (mapa[ey + d][ex - d2] == 1)
+						{
+							Console::ForegroundColor = ConsoleColor::White;
+							cout << char(219);
+						}
+
+						else
+						{
+							if (mapa[ey + d][ex - d2] == 3)
+							{
+								Console::ForegroundColor = ConsoleColor(color);
+								cout << char(219);
+							}
+							else
+							{
+								cout << " ";
+							}
+						}
+						d2++;
+					}
+					else
+					{
+						d = 0;
+						d2 = 0;
+						sentido = 0;
+					} break;
+				}
+			} break;
+
+		}
+	}
+}
+
+void movimiento(int **mapa, int *pos, int *posenemy, bool &start, int &nrobloques,
+	int &colorbloques, int &nivel, int &d, int &vidas, int &pasos, int &color)
+{
+	int jx, jy, tecla;
+	bool movio = false;
+
+	jx = pos[1];
+	jy = pos[0];
+
+	if (kbhit() == true)
+	{
+		tecla = _getch();
+		switch (tecla)
+		{
+		case UP: if (mapa[jy - 1][jx] != 0){
+					 Pintar(jx, jy, mapa, color);
+					 jy--;
+					 ContarColores(jx, jy, mapa, nrobloques, colorbloques, start, nivel);
+					 movio = true;
+		}
+				 else {
+					 vidas--;
+					 start = true;
+				 } break;
+		case LEFT: if (mapa[jy][jx - 1] != 0){
+					   Pintar(jx, jy, mapa, color);
+					   jx--;
+					   ContarColores(jx, jy, mapa, nrobloques, colorbloques, start, nivel);
+					   movio = true;
+		}
+				   else {
+					   vidas--;
+					   start = true;
+				   } break;
+		case RIGHT: if (mapa[jy][jx + 1] != 0){
+						Pintar(jx, jy, mapa, color);
+						jx++;
+						ContarColores(jx, jy, mapa, nrobloques, colorbloques, start, nivel);
+						movio = true;
+		}
+					else {
+						vidas--;
+						start = true;
+					} break;
+		case DOWN: if (mapa[jy + 1][jx] != 0){
+					   Pintar(jx, jy, mapa, color);
+					   jy++;
+					   ContarColores(jx, jy, mapa, nrobloques, colorbloques, start, nivel);
+					   movio = true;
+		}
+				   else {
+					   vidas--;
+					   start = true;
+				   } break;
+		case 27: start = true;     //TECLA ESC PARA AVANZAR DE NIVEL
+			nivel++;
+		}
+		if (movio == true)
+		{
+			Centrar(jx, jy);
+			Console::ForegroundColor = ConsoleColor(color);
+			cout << char(2);
+			pos[1] = jx;
+			pos[0] = jy;
+			pasos--;
+		}
+	}
+}
+
+void creditos()
+{
+	Console::Clear();
+
+	Console::ForegroundColor = ConsoleColor::Green;
+	Console::SetCursorPosition(36, 4);
+	cout << "CR" << char(144) << "DITOS";
+	Console::SetCursorPosition(36, 5);
+	cout << "========";
+	Console::ForegroundColor = ConsoleColor::Gray;
+	Console::SetCursorPosition(26, 8);
+	cout << "- Giancarlo Escobedo Herrera";
+	Console::SetCursorPosition(26, 10);
+	cout << "- Andr" << char(130) << " Heredia Salvatierra";
+	Console::ForegroundColor = ConsoleColor::DarkGreen;
+	Console::SetCursorPosition(32, 13);
+	cout << "1 de julio, 2015";
+	Console::SetCursorPosition(21, 17);
+	Console::ForegroundColor = ConsoleColor::White;
+	cout << "Presione una tecla para regresar al men" << char(163);
+	_getch();
+}
+
+void opciones(int &dificultad, int &color)
+{
+	int op;
+
+	do
+	{
+		Console::Clear();
+		Console::ForegroundColor = ConsoleColor::Red;
+		Console::SetCursorPosition(35, 5);
+		cout << "OPCIONES";
+		Console::SetCursorPosition(35, 6);
+		cout << "========";
+		Console::SetCursorPosition(27, 9);
+		Console::ForegroundColor = ConsoleColor::Gray;
+		cout << "1: Dificultad del juego";
+		Console::SetCursorPosition(27, 10);
+		cout << "2: Color del personaje";
+		Console::SetCursorPosition(27, 11);
+		cout << "3: Volver";
+		Console::SetCursorPosition(28, 14);
+		Console::ForegroundColor = ConsoleColor::White;
+		cout << "Ingrese su selecci" << char(162) << "n: ";
+		cin >> op;
+		switch (op)
+		{
+		case 1:
+			do
+			{
+				Console::Clear();
+				Console::ForegroundColor = ConsoleColor::DarkMagenta;
+				Console::SetCursorPosition(34, 5);
+				cout << "DIFICULTAD";
+				Console::SetCursorPosition(34, 6);
+				cout << "==========";
+				Console::SetCursorPosition(33, 9);
+				Console::ForegroundColor = ConsoleColor::Gray;
+				cout << "1: F" << char(160) << "cil";
+				Console::SetCursorPosition(33, 10);
+				cout << "2: Normal";
+				Console::SetCursorPosition(33, 11);
+				cout << "3: Dif" << char(161) << "cil";
+				Console::SetCursorPosition(29, 14);
+				Console::ForegroundColor = ConsoleColor::White;
+				cout << "Ingrese su selecci" << char(162) << "n: ";
+				cin >> dificultad;
+			} while (dificultad <1 || dificultad >3); break;
+
+		case 2:
+			do
+			{
+				Console::Clear();
+				Console::ForegroundColor = ConsoleColor::Yellow;
+				Console::SetCursorPosition(30, 5);
+				cout << "COLOR DEL PERSONAJE";
+				Console::SetCursorPosition(30, 6);
+				cout << "===================";
+				Console::SetCursorPosition(26, 9);
+				Console::ForegroundColor = ConsoleColor::Gray;
+				cout << "6:"; Console::ForegroundColor = ConsoleColor(6); cout << " Dorado";
+				Console::SetCursorPosition(26, 10);
+				Console::ForegroundColor = ConsoleColor::Gray;
+				cout << "9:"; Console::ForegroundColor = ConsoleColor(9); cout << " Azul";
+				Console::SetCursorPosition(26, 11);
+				Console::ForegroundColor = ConsoleColor::Gray;
+				cout << "10:"; Console::ForegroundColor = ConsoleColor(10); cout << " Verde";
+				Console::SetCursorPosition(41, 9);
+				Console::ForegroundColor = ConsoleColor::Gray;
+				cout << "11:"; Console::ForegroundColor = ConsoleColor(11); cout << " Celeste";
+				Console::SetCursorPosition(41, 10);
+				Console::ForegroundColor = ConsoleColor::Gray;
+				cout << "12:"; Console::ForegroundColor = ConsoleColor(12); cout << " Rojo";
+				Console::SetCursorPosition(41, 11);
+				Console::ForegroundColor = ConsoleColor::Gray;
+				cout << "13:"; Console::ForegroundColor = ConsoleColor(13); cout << " Fucsia";
+
+				Console::SetCursorPosition(28, 14);
+				Console::ForegroundColor = ConsoleColor::White;
+				cout << "Ingrese su selecci" << char(162) << "n: ";
+				cin >> color;
+			} while (color != 6 && color != 9 && color != 10 && color != 11 && color != 12 && color != 13); break;
+
+		case 3: break;
+		}
+
+	} while (op != 3);
+}
+
+void instrucciones()
+{
+	Console::Clear();
+	Console::ForegroundColor = ConsoleColor::Blue;
+	Console::SetCursorPosition(34, 4);
+	cout << "INSTRUCCIONES";
+	Console::SetCursorPosition(34, 5);
+	cout << "=============";
+	Console::SetCursorPosition(13, 8);
+	Console::ForegroundColor = ConsoleColor::Gray;
+	cout << "- El objetivo del juego es mover a su personaje para pintar";
+	Console::SetCursorPosition(13, 9);
+	cout << "  todos los bloques del mapa y avanzar al siguiente nivel.";
+	Console::SetCursorPosition(13, 10);
+	cout << "- Utilice las teclas ";
+	Console::ForegroundColor = ConsoleColor::Cyan;
+	cout << char(24) << " " << char(25) << " " << char(27) << " " << char(26);
+	Console::ForegroundColor = ConsoleColor::Gray;
+	cout << " del teclado para moverse.";
+	Console::SetCursorPosition(13, 11);
+	cout << "- Si pasa por un bloque que ya est" << char(130) << " pintado lo despintar" << char(160) << ".";
+	Console::SetCursorPosition(13, 12);
+	cout << "- Si se cae del camino de bloques pierde una vida.";
+	Console::SetCursorPosition(13, 13);
+	cout << "- Si se queda sin movimientos pierde una vida.";
+	Console::SetCursorPosition(13, 14);
+	cout << "- Si colisiona con una bala del ca" << char(164) << char(162) << "n pierde una vida.";
+	Console::SetCursorPosition(13, 15);
+	cout << "- Si pierde todas sus vidas termina el juego.";
+	Console::SetCursorPosition(21, 18);
+	Console::ForegroundColor = ConsoleColor::White;
+	cout << "Presione una tecla para regresar al men" << char(163);
+	_getch();
+}
+
+void rolley(int &dificultad, int &color)
+{
+	Console::Clear();
+	Console::CursorVisible = 0;
+
+	bool gameover = false, start = true, mostrarmalo = false;
+	int **mapa, *inicio, *pos, *enemy, *posenemy, nrobloques, colorbloques, nivel = 1,
+		d = 0, rango, vidas = 5, pasos, tipomalo, d2 = 0, sentido = 0, retraso = 100;
+
+	mapa = new int*[N];
+	for (int i = 0; i < N; i++)
+		mapa[i] = new int[N];
+
+	inicio = new int[2];
+	pos = new int[2];
+	enemy = new int[2];
+	posenemy = new int[2];
+
+	while (gameover == false)
+	{
+		if (start == true)
+		{
+			nrobloques = 0, colorbloques = 0;
+			Console::Clear();
+			switch (nivel)
+			{
+			case 1: mapa1(mapa, inicio, pasos); break;
+			case 2: mapa2(mapa, inicio, pasos); break;
+			case 3: mapa3(mapa, inicio, pasos); break;
+			case 4: mapa4(mapa, inicio, pasos); break;
+			case 5: mapa5(mapa, inicio, enemy, mostrarmalo, rango, pasos, tipomalo); break;
+			case 6: mapa6(mapa, inicio, enemy, mostrarmalo, rango, pasos, tipomalo); break;
+			case 7: mapa7(mapa, inicio, enemy, mostrarmalo, rango, pasos, tipomalo); break;
+			case 8: mapa8(mapa, inicio, enemy, mostrarmalo, rango, pasos, tipomalo); break;
+			default: gameover = true; break;
+			}
+
+			if (gameover == false)
+			{
+				switch (dificultad)
+				{
+				case 1: break;
+				case 2: pasos -= 3; if (retraso == 100) retraso -= 20; if (vidas == 5) vidas--; break;
+				case 3: pasos -= 8; if (retraso == 100) retraso -= 40; if (vidas == 5) vidas -= 2; break;
+				}
+			}
+
+			MostrarMapa(mapa, nivel, nrobloques, color);
+			for (int i = 0; i < 2; i++)
+			{
+				pos[i] = inicio[i];
+				posenemy[i] = enemy[i];
+			}
+			start = false;
+		}
+		MostrarVidas(vidas, gameover);
+		MostrarPasos(vidas, start, pasos);
+		malote(mostrarmalo, mapa, posenemy, d, rango, pos, start, vidas, color, tipomalo, d2, sentido, retraso);
+		movimiento(mapa, pos, posenemy, start, nrobloques, colorbloques, nivel, d, vidas, pasos, color);
+	}
+	if (vidas>0)
+	{
+		victoria();
+	}
+	else
+	{
+		derrota();
+	}
+}
+
+int main()
+{
+	int op, dificultad = 1, color = 12;
+
+	do
+	{
+		Console::Clear();
+		Console::CursorVisible = 1;
+
+		Console::SetCursorPosition(34, 4);
+		Console::ForegroundColor = ConsoleColor::Blue;
+		cout << char(201) << setfill(char(205)) << setw(11) << char(187);
+		Console::SetCursorPosition(34, 5);
+		cout << char(186);
+		Console::ForegroundColor = ConsoleColor::Red;
+		cout << "  ROLLEY! ";
+		Console::ForegroundColor = ConsoleColor::Blue; cout << char(186);
+		Console::SetCursorPosition(34, 6);
+		Console::ForegroundColor = ConsoleColor::Blue;
+		cout << char(200) << setfill(char(205)) << setw(11) << char(188);
+
+		Console::SetCursorPosition(33, 9);
+		Console::ForegroundColor = ConsoleColor::Gray;
+		cout << "1: Jugar";
+		Console::SetCursorPosition(33, 10);
+		cout << "2: Instrucciones";
+		Console::SetCursorPosition(33, 11);
+		cout << "3: Opciones";
+		Console::SetCursorPosition(33, 12);
+		cout << "4: Cr"<<char(130)<<"ditos";
+		Console::SetCursorPosition(33, 13);
+		cout << "5: Salir";
+
+		Console::SetCursorPosition(29, 16);
+		Console::ForegroundColor = ConsoleColor::White;
+		cout << "Ingrese su selecci" << char(162) << "n: ";
+		cin >> op;
+
+		switch (op)
+		{
+		case 1: rolley(dificultad, color); break;
+		case 2: instrucciones(); break;
+		case 3: opciones(dificultad, color); break;
+		case 4: creditos(); break;
+		case 5: break;
+		}
+	} while (op != 5);
+}
